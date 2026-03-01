@@ -1,0 +1,58 @@
+# ========================
+# Environments & Secrets
+# ========================
+# NEVER commit your .env file! It contains passwords and API keys.
+.env
+.env.*
+!.env.example
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+
+# ========================
+# Python
+# ========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python package distribution
+dist/
+build/
+*.egg-info/
+
+# ========================
+# FastAPI & Databases
+# ========================
+# Logs
+*.log
+
+# Local SQLite databases (if you are using them for dev)
+*.db
+*.sqlite3
+
+# ========================
+# Testing
+# ========================
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ========================
+# IDEs & Editors
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ========================
+# OS Generated Files
+# ========================
+.DS_Store
+Thumbs.db
