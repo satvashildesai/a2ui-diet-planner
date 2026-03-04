@@ -1,10 +1,10 @@
-# 🥗 AaharAI — AI-Driven Indian Diet Planner
+# AaharAI — AI-Driven Indian Diet Planner
 
 A culturally intelligent Indian diet planning web application powered by **Google ADK + Gemini 2.5 Flash** and the **A2UI framework** for dynamic, adaptive UIs.
 
 ---
 
-## ✨ Features
+## Features
 
 - **Adaptive UI** — Agent-generated interfaces, never predetermined forms
 - **4 Agent Modes**: Intake → Plan Active → Context Interrupt → Guardrail
@@ -17,7 +17,7 @@ A culturally intelligent Indian diet planning web application powered by **Googl
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 User Message
@@ -54,7 +54,7 @@ GuardrailCard   ┌────────┼───────────�
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Option 1: Standalone HTML (No install needed)
 
@@ -97,7 +97,7 @@ npm run dev
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 indian-diet-planner/
@@ -144,7 +144,7 @@ indian-diet-planner/
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -161,7 +161,7 @@ indian-diet-planner/
 
 ---
 
-## 🥗 Indian Diet Plan Rules
+## Indian Diet Plan Rules
 
 The agent strictly enforces:
 
@@ -176,7 +176,7 @@ The agent strictly enforces:
 
 ---
 
-## 🧪 Test Scenarios
+## Test Scenarios
 
 | Scenario | Expected Behaviour |
 |----------|-------------------|
@@ -191,7 +191,7 @@ The agent strictly enforces:
 
 ---
 
-## 🔧 With Gemini API
+## With Gemini API
 
 Add your free Gemini API key to unlock the real LLM:
 
