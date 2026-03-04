@@ -203,7 +203,7 @@ Without a key, the app uses a deterministic mock that demonstrates all 4 agent m
 
 ---
 
-## 📝 Notes
+## Notes
 
 - Sessions are **ephemeral** — no database, no persistence
 - Streaming is **always on** — responses stream in real-time via SSE
