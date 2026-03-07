@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AaharAI — Indian Diet Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --saffron: #FF6B35;
+    --turmeric: #F4A261;
+    --ghee: #FFF8EE;
+    --cardamom: #2D4A3E;
+    --mint: #52796F;
+    --cream: #FFFDF7;
+    --bark: #6B4226;
+    --smoke: #F5F0E8;
+    --text: #1A1A1A;
+    --muted: #6B6B6B;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--cardamom);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+  }
+
+  .header-logo {
+    width: 42px;
+    height: 42px;
+    background: var(--saffron);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .header-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .header-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.8);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    background: linear-gradient(90deg, #FFF3E0, #FFF8EE);
+    border-bottom: 1px solid #FFE0B2;
+    padding: 8px 24px;
+    text-align: center;
+    font-size: 11px;
+    color: #E65100;
+    letter-spacing: 0.2px;
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    display: flex;
+    flex: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+    flex-direction: column;
+  }
+
+  /* CHAT AREA */
+  .chat-area {
+    flex: 1;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  /* BUBBLES */
+  .bubble-wrap { display: flex; gap: 10px; align-items: flex-start; }
+  .bubble-wrap.user { flex-direction: row-reverse; }
+
+  .bubble-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0; margin-top: 2px;
+  }
+  .bubble-avatar.ai { background: var(--cardamom); }
+  .bubble-avatar.user { background: var(--saffron); }
+
+  .bubble {
+    max-width: 75%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .bubble.ai {
+    background: #fff;
+    border: 1px solid #E8E0D5;
+    border-top-left-radius: 4px;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .bubble.user {
+    background: var(--cardamom);
+    color: #fff;
+    border-top-right-radius: 4px;
+  }
+
+  /* SURFACE AREA */
+  .surface-area { display: flex; flex-direction: column; gap: 12px; }
+
+  /* PROFILE FORM */
+  .profile-form {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid #E8E0D5;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 520px;
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, var(--saffron), var(--turmeric));
+    padding: 20px 24px;
+    color: #fff;
+  }
+
+  .form-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .form-header p { font-size: 13px; opacity: 0.9; margin-top: 2px; }
+
+  .form-body { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .field-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field-label span { color: var(--saffron); }
+
+  .field-input, .field-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid #E0D8CE;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--ghee);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+
+  .field-input:focus, .field-select:focus {
+    border-color: var(--saffron);
+    box-shadow: 0 0 0 3px rgba(255,107,53,0.12);
+    background: #fff;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--cardamom);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-primary:hover {
+    background: #1a3a2e;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(45,74,62,0.3);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  /* DIET PLAN CARD */
+  .diet-plan {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid #E8E0D5;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    max-width: 620px;
+    width: 100%;
+  }
+
+  .plan-header {
+    background: linear-gradient(135deg, var(--cardamom) 0%, #1a3a2e 100%);
+    padding: 24px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .plan-header::before {
+    content: '🌿';
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 60px;
+    opacity: 0.15;
+  }
+
+  .plan-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .plan-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .plan-goal {
+    font-size: 12px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4px;
+    text-transform: capitalize;
+  }
+
+  .plan-kcal {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .plan-kcal-num {
+    font-size: 28px;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    color: var(--turmeric);
+  }
+
+  .plan-kcal-label { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+  .plan-tags {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+
+  .plan-tag {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.9);
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  /* MEAL SLOTS */
+  .meals-list { border-top: 1px solid #F0EBE3; }
+
+  .meal-slot {
+    padding: 16px 20px;
+    border-bottom: 1px solid #F5F0E8;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    transition: background 0.15s;
+  }
+
+  .meal-slot:hover { background: #FDFAF5; }
+  .meal-slot:last-child { border-bottom: none; }
+
+  .meal-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+
+  .meal-content { flex: 1; min-width: 0; }
+
+  .meal-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+  }
+
+  .meal-slot-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--saffron);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .meal-time { font-size: 11px; color: var(--muted); }
+
+  .meal-dish {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .meal-stats {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+  }
+
+  .meal-stat { font-size: 12px; color: var(--muted); }
+  .meal-stat strong { color: var(--saffron); font-weight: 600; }
+
+  .meal-tip {
+    font-size: 12px;
+    color: var(--mint);
+    margin-top: 6px;
+    font-style: italic;
+    display: flex;
+    gap: 5px;
+  }
+
+  .plan-footer {
+    background: linear-gradient(135deg, #E8F5E9, #F1F8E9);
+    padding: 16px 20px;
+    border-top: 1px solid #C8E6C9;
+  }
+
+  .hydration { font-size: 13px; color: #2E7D32; margin-bottom: 10px; }
+
+  .notes-list { display: flex; flex-direction: column; gap: 4px; }
+
+  .note-item {
+    font-size: 12px;
+    color: #4CAF50;
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .note-item::before { content: '•'; flex-shrink: 0; margin-top: 1px; }
+
+  /* INTERRUPT FORM */
+  .interrupt-form {
+    background: #FFFBF0;
+    border: 2px solid var(--turmeric);
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 480px;
+    box-shadow: 0 4px 24px rgba(244,162,97,0.2);
+  }
+
+  .interrupt-header {
+    padding: 18px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    border-bottom: 1px solid #FFE0A0;
+  }
+
+  .interrupt-icon { font-size: 26px; flex-shrink: 0; }
+
+  .interrupt-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .interrupt-subtitle { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+  .pending-q {
+    margin: 0 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #FFE0A0;
+    margin-top: 14px;
+  }
+
+  .pending-q-label {
+    font-size: 11px;
+    color: var(--turmeric);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .pending-q-text { font-size: 13px; color: var(--text); margin-top: 4px; font-style: italic; }
+
+  .interrupt-body { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 14px; }
+
+  .btn-amber {
+    width: 100%;
+    padding: 13px;
+    background: var(--turmeric);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-amber:hover {
+    background: #e88e4d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(244,162,97,0.4);
+  }
+
+  /* GUARDRAIL CARD */
+  .guardrail-card {
+    background: var(--smoke);
+    border: 1px solid #E0D8CE;
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    max-width: 440px;
+  }
+
+  .guardrail-icon { font-size: 40px; margin-bottom: 12px; }
+  .guardrail-msg { font-size: 15px; color: var(--text); font-weight: 500; margin-bottom: 8px; }
+  .guardrail-suggest { font-size: 13px; color: var(--saffron); line-height: 1.6; }
+
+  /* FOOD ANALYSIS CARD */
+  .food-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid #E8E0D5;
+    overflow: hidden;
+    max-width: 520px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+
+  .food-card-header {
+    background: linear-gradient(135deg, var(--bark), #9C5B2C);
+    padding: 18px 20px;
+    color: #fff;
+  }
+
+  .food-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .food-card-body { padding: 18px 20px; }
+
+  .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+
+  .macro-item {
+    background: var(--ghee);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .macro-val { font-size: 18px; font-weight: 700; color: var(--saffron); }
+  .macro-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+
+  .verdict-box {
+    background: var(--smoke);
+    border-radius: 12px;
+    padding: 14px 16px;
+    border-left: 4px solid var(--mint);
+    margin-top: 12px;
+  }
+
+  .verdict-label { font-size: 11px; font-weight: 600; color: var(--mint); text-transform: uppercase; letter-spacing: 0.5px; }
+  .verdict-text { font-size: 14px; color: var(--text); margin-top: 4px; line-height: 1.6; }
+
+  .benefits-section { margin-top: 14px; }
+  .section-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .benefit-item { font-size: 13px; color: var(--text); padding: 4px 0; display: flex; gap: 6px; }
+  .benefit-item::before { content: '✓'; color: var(--mint); font-weight: 700; }
+  .drawback-item::before { content: '⚠'; color: var(--turmeric); }
+
+  /* CHAT INPUT */
+  .chat-input-bar {
+    padding: 16px 20px;
+    background: #fff;
+    border-top: 1px solid #E8E0D5;
+    position: sticky;
+    bottom: 0;
+  }
+
+  .chat-input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .chat-input {
+    flex: 1;
+    border: 1.5px solid #E0D8CE;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--ghee);
+    outline: none;
+    resize: none;
+    max-height: 120px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .chat-input:focus {
+    border-color: var(--saffron);
+    background: #fff;
+  }
+
+  .chat-input::placeholder { color: #C0B5A6; }
+
+  .send-btn {
+    width: 46px;
+    height: 46px;
+    background: var(--saffron);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { background: #e55d28; transform: translateY(-1px); }
+  .send-btn:disabled { background: #D0C8BC; cursor: not-allowed; transform: none; }
+
+  .send-btn svg { width: 20px; height: 20px; fill: #fff; }
+
+  /* TYPING INDICATOR */
+  .typing { display: flex; gap: 5px; align-items: center; padding: 10px 14px; }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: var(--turmeric);
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-in { animation: fadeSlideIn 0.3s ease forwards; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D0C8BC; border-radius: 3px; }
+
+  /* QUICK CHIPS */
+  .quick-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .chip {
+    background: var(--ghee);
+    border: 1.5px solid #E8DDD0;
+    color: var(--bark);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .chip:hover {
+    background: var(--saffron);
+    border-color: var(--saffron);
+    color: #fff;
+  }
+
+  /* Mode indicator */
+  .mode-badge {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+
+  .mode-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #69f0ae;
+    box-shadow: 0 0 6px #69f0ae;
+  }
+
+  .mode-text { font-size: 11px; color: rgba(255,255,255,0.8); }
+
+  /* restart button */
+  .restart-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .restart-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-logo">🥗</div>
+  <div>
+    <div class="header-title">AaharAI</div>
+    <div class="header-sub">Indian Diet Planner</div>
+  </div>
+  <div class="mode-badge" id="modeBadge">
+    <div class="mode-dot"></div>
+    <span class="mode-text" id="modeText">Intake</span>
+  </div>
+  <button class="restart-btn" onclick="restart()">↺ Restart</button>
+</header>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer">
+  ⚕️ For informational purposes only. Always consult a qualified dietitian or physician before making dietary changes.
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="chat-area" id="chatArea">
+    <!-- Messages render here -->
+  </div>
+
+  <!-- QUICK CHIPS (shown only initially) -->
+  <div style="padding: 0 20px 8px" id="quickChipsWrap">
+    <div class="quick-chips" id="quickChips">
+      <button class="chip" onclick="sendChip('I want to lose weight')">🏃 Lose weight</button>
+      <button class="chip" onclick="sendChip('I want to gain muscle mass')">💪 Gain muscle</button>
+      <button class="chip" onclick="sendChip('Help me maintain a healthy weight')">⚖️ Maintain weight</button>
+      <button class="chip" onclick="sendChip('I follow a Jain diet, create a plan for me')">🙏 Jain diet plan</button>
+    </div>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div class="chat-input-bar">
+    <div class="chat-input-wrap">
+      <textarea id="chatInput" class="chat-input" rows="1"
+        placeholder="Tell me your diet goal…"
+        onkeydown="handleKeydown(event)"
+        oninput="autoResize(this)"></textarea>
+      <button class="send-btn" id="sendBtn" onclick="handleSend()">
+        <svg viewBox="0 0 24 24"><path d="M2 21L23 12 2 3v7l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE MACHINE
+// ============================================================
+const state = {
+  mode: 'intake',
+  userProfile: null,
+  activePlan: null,
+  pendingQuestion: null,
+  conversationHistory: [],
+  isTyping: false
+};
+
+// ============================================================
+// DOM HELPERS
+// ============================================================
+const chatArea = document.getElementById('chatArea');
+
+function scrollBottom() {
+  setTimeout(() => chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: 'smooth' }), 50);
+}
+
+function addMessage(role, content, isHTML = false) {
+  const wrap = document.createElement('div');
+  wrap.className = `bubble-wrap ${role} animate-in`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `bubble-avatar ${role}`;
+  avatar.textContent = role === 'ai' ? '🥗' : '👤';
+
+  const bubble = document.createElement('div');
+  bubble.className = `bubble ${role}`;
+  if (isHTML) bubble.innerHTML = content;
+  else bubble.textContent = content;
+
+  wrap.appendChild(avatar);
+  wrap.appendChild(bubble);
+  chatArea.appendChild(wrap);
+  scrollBottom();
+  return wrap;
+}
+
+function addSurface(html) {
+  const div = document.createElement('div');
+  div.className = 'surface-area animate-in';
+  div.innerHTML = html;
+  chatArea.appendChild(div);
+  scrollBottom();
+  return div;
+}
+
+function showTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap ai animate-in';
+  wrap.id = 'typingIndicator';
+  wrap.innerHTML = `
+    <div class="bubble-avatar ai">🥗</div>
+    <div class="bubble ai">
+      <div class="typing">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  chatArea.appendChild(wrap);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingIndicator');
+  if (t) t.remove();
+}
+
+function setMode(m) {
+  state.mode = m;
+  const labels = { intake: 'Intake', plan_active: 'Plan Active', interrupt_pending: 'Awaiting Context', guardrail: 'Guardrail' };
+  document.getElementById('modeText').textContent = labels[m] || m;
+}
+
+function setSending(v) {
+  document.getElementById('sendBtn').disabled = v;
+  document.getElementById('chatInput').disabled = v;
+}
+
+// ============================================================
+// GUARDRAIL CHECKER
+// ============================================================
+function guardrailCheck(q) {
+  const offTopicKw = ['cricket','ipl','movie','election','stock','python tutorial',
+    'relationship','girlfriend','travel','hotel','weather','politics','actor',
+    'singer','game','series','netflix','football','bitcoin','coding','recipe for',
+    'who won','who is the','what is the capital'];
+  const ql = q.toLowerCase();
+  for (const kw of offTopicKw) {
+    if (ql.includes(kw)) return { is_relevant: false, reason: kw };
+  }
+  return { is_relevant: true, reason: 'diet related' };
+}
+
+// ============================================================
+// FOOD ANALYZER
+// ============================================================
+const CONTEXT_FOODS = {
+  'ghee':        ['activity_level', 'cholesterol_history'],
+  'coconut oil': ['activity_level', 'cholesterol_history'],
+  'jaggery':     ['blood_sugar_history'],
+  'pickle':      ['blood_pressure_history'],
+  'chai':        ['caffeine_sensitivity'],
+  'red meat':    ['cholesterol_history'],
+  'alcohol':     ['liver_history'],
+  'salt':        ['blood_pressure_history'],
+};
+
+function foodAnalyzer(query, additionalCtx = {}) {
+  const ql = query.toLowerCase();
+  for (const [food, fields] of Object.entries(CONTEXT_FOODS)) {
+    if (ql.includes(food)) {
+      const missing = fields.filter(f => !additionalCtx[f]);
+      if (missing.length > 0) {
+        return { needs_context: true, required_fields: missing, food_name: food };
+      } else {
+        return { needs_context: false, food_name: food };
+      }
+    }
+  }
+  // Check for generic food questions
+  const foodWords = ['is (.*) good','benefit of','should i eat','can i have','effect of'];
+  for (const p of foodWords) {
+    const m = ql.match(new RegExp(p));
+    if (m) return { needs_context: false, food_name: m[1] || 'this food' };
+  }
+  return null;
+}
+
+// ============================================================
+// BMR / DIET PLAN GENERATOR
+// ============================================================
+function generatePlan(profile) {
+  const { height_cm, weight_kg, age, gender, dietary_preference, allergies, goal } = profile;
+  let bmr = gender === 'Female'
+    ? 10 * weight_kg + 6.25 * height_cm - 5 * age - 161
+    : 10 * weight_kg + 6.25 * height_cm - 5 * age + 5;
+  const tdee = bmr * 1.55;
+  const target = goal === 'lose_weight' ? Math.round(tdee - 500) :
+                 goal === 'gain_weight' ? Math.round(tdee + 400) : Math.round(tdee);
+  const bmi = +(weight_kg / Math.pow(height_cm / 100, 2)).toFixed(1);
+
+  // Dietary preference aware meal generator
+  const isVeg = dietary_preference === 'Vegetarian' || dietary_preference === 'Vegan' || dietary_preference === 'Jain';
+  const isJain = dietary_preference === 'Jain';
+  const isVegan = dietary_preference === 'Vegan';
+  const isEgg = dietary_preference === 'Eggetarian';
+
+  const breakfast = isJain
+    ? { dish: 'Jowar Bhakri with Lauki Sabzi', tip: 'Cook lauki with hing and ajwain — Jain-friendly and digestive.' }
+    : isVegan
+    ? { dish: 'Poha with Peanuts & Curry Leaves', tip: 'Add lime juice after cooking for brightness; skip the tadka if oil-free.' }
+    : isVeg
+    ? { dish: 'Moong Dal Chilla with Green Chutney', tip: 'Add finely chopped spinach and ajwain to the batter for better digestion.' }
+    : isEgg
+    ? { dish: 'Besan Omelette with Whole Wheat Toast', tip: 'Add methi leaves and green chillies to the batter for flavour and nutrition.' }
+    : { dish: 'Egg Bhurji with 2 Multigrain Rotis', tip: 'Use minimal oil; add tomato and capsicum for micronutrient density.' };
+
+  const lunch = isJain
+    ? { dish: 'Tuar Dal + 2 Bajra Rotis + Tinda Sabzi', tip: 'Skip onion-garlic; use hing and ginger for flavour.' }
+    : isVegan
+    ? { dish: 'Rajma Chawal + Kachumber Salad', tip: 'Cook rajma from scratch; soak overnight for best texture and lower gas.' }
+    : isVeg
+    ? { dish: 'Dal Tadka + 2 Rotis + Baingan Bharta', tip: 'Roast brinjal on direct flame for authentic smoky flavour.' }
+    : isEgg
+    ? { dish: 'Egg Curry + 2 Rotis + Mixed Vegetable Raita', tip: 'Add methi seeds to the egg curry base for blood sugar regulation.' }
+    : { dish: 'Grilled Chicken Tikka + Dal Makhani + 2 Rotis', tip: 'Marinate chicken overnight in curd and spices for tenderness.' };
+
+  const eveningSnack = isJain
+    ? { dish: 'Roasted Makhana + Coconut Water', tip: 'Season makhana with sendha namak and black pepper only.' }
+    : isVegan
+    ? { dish: 'Sprouts Chaat with Chaat Masala', tip: 'Sprout overnight; add cucumber and raw mango for crunch and taste.' }
+    : isVeg
+    ? { dish: 'Roasted Makhana + 1 glass Chaas', tip: 'Add a pinch of rock salt and cumin to chaas for a digestive boost.' }
+    : { dish: 'Sprouts Chaat with Boiled Eggs', tip: 'Hard-boil eggs the night before; cool completely before adding to chaat.' };
+
+  const dinner = isJain
+    ? { dish: 'Moong Dal Khichdi with Ghee + Parwal Sabzi', tip: 'Cook parwal with hing, turmeric; skip onion-garlic.' }
+    : isVegan
+    ? { dish: 'Palak Dal + Jowar Bhakri', tip: 'Blend a small portion of dal into the greens for a creamy texture without dairy.' }
+    : isVeg
+    ? { dish: 'Palak Dal + 2 Rotis + Kachumber Salad', tip: 'Add a tadka of mustard seeds and dry red chillies on top before serving.' }
+    : isEgg
+    ? { dish: 'Egg Fried Rice (brown rice) + Raita', tip: 'Use leftover rice for best texture; add more vegetables than eggs.' }
+    : { dish: 'Grilled Fish (Surmai) + Steamed Rice + Lehsun Ki Dal', tip: 'Marinate fish in lime and turmeric; grill instead of fry to cut calories.' };
+
+  const breakfastCal = goal === 'lose_weight' ? 280 : goal === 'gain_weight' ? 380 : 320;
+  const snack1Cal = goal === 'lose_weight' ? 130 : goal === 'gain_weight' ? 200 : 160;
+  const lunchCal = goal === 'lose_weight' ? 450 : goal === 'gain_weight' ? 620 : 520;
+  const snack2Cal = goal === 'lose_weight' ? 150 : goal === 'gain_weight' ? 220 : 180;
+  const dinnerCal = target - breakfastCal - snack1Cal - lunchCal - snack2Cal;
+
+  return {
+    goal,
+    calorie_target: target,
+    bmi,
+    dietary_preference,
+    hydration_tip: 'Drink 8–10 glasses of water daily. Start mornings with warm jeera water on an empty stomach.',
+    general_notes: [
+      'Avoid fried snacks and maida-based items like samosa, pakoda, and white bread',
+      'Use minimal oil — prefer cold-pressed mustard, ghee (moderate), or coconut oil',
+      `Eat dinner at least 2 hours before sleeping`,
+      'Practice 10-minute post-meal walks to improve digestion and insulin sensitivity'
+    ],
+    meals: [
+      { time: '7:00 AM – 8:00 AM', slot_name: 'Morning Breakfast', dish_name: breakfast.dish,
+        portion: '1 serving', calories: breakfastCal, protein_g: 12.5, recipe_tip: breakfast.tip },
+      { time: '10:30 AM – 11:00 AM', slot_name: 'Mid-Morning Snack', dish_name: isVeg ? 'Seasonal Fruit + Handful of Almonds' : 'Roasted Chana + 1 Banana',
+        portion: '1 medium fruit + 5 almonds', calories: snack1Cal, protein_g: 4.0,
+        recipe_tip: 'Eat fruit first, then nuts — fibre first slows sugar absorption.' },
+      { time: '1:00 PM – 2:00 PM', slot_name: 'Lunch', dish_name: lunch.dish,
+        portion: '1 katori dal + 2 rotis + 1 katori sabzi', calories: lunchCal, protein_g: 22.0, recipe_tip: lunch.tip },
+      { time: '4:30 PM – 5:00 PM', slot_name: 'Evening Snack', dish_name: eveningSnack.dish,
+        portion: '1 handful + 1 glass', calories: snack2Cal, protein_g: 6.0, recipe_tip: eveningSnack.tip },
+      { time: '7:30 PM – 8:00 PM', slot_name: 'Dinner', dish_name: dinner.dish,
+        portion: '1 katori dal + 2 rotis + salad', calories: Math.max(dinnerCal, 300), protein_g: 18.0, recipe_tip: dinner.tip }
+    ]
+  };
+}
+
+// ============================================================
+// AI RESPONSE GENERATOR (simulated agent)
+// ============================================================
+async function agentRespond(userMsg, additionalCtx = {}) {
+  setSending(true);
+  showTyping();
+  await delay(1200 + Math.random() * 800);
+  removeTyping();
+
+  // GUARDRAIL CHECK (always first)
+  const guardResult = guardrailCheck(userMsg);
+  if (!guardResult.is_relevant) {
+    renderGuardrailCard(
+      `I'm specialised in diet and nutrition, so ${guardResult.reason}-related questions are a bit outside my expertise! 🙏`,
+      `I can help you with your ${state.activePlan ? 'active diet plan, meal substitutions,' : 'meal plan creation,'} calorie questions, or personalised nutritional advice. What would you like to know?`
+    );
+    setSending(false);
+    return;
+  }
+
+  // INTERRUPT PENDING MODE — resume
+  if (state.mode === 'interrupt_pending' && Object.keys(additionalCtx).length > 0) {
+    const pendingQ = state.pendingQuestion;
+    state.pendingQuestion = null;
+    setMode('plan_active');
+    renderFoodAnalysisAnswer(pendingQ, additionalCtx);
+    setSending(false);
+    return;
+  }
+
+  // INTAKE MODE
+  if (state.mode === 'intake' || !state.userProfile) {
+    const goalMap = {
+      'lose': 'lose_weight', 'weight loss': 'lose_weight', 'slim': 'lose_weight', 'diet': 'lose_weight',
+      'gain': 'gain_weight', 'muscle': 'gain_weight', 'bulk': 'gain_weight', 'weight gain': 'gain_weight',
+      'maintain': 'maintain_weight', 'healthy': 'maintain_weight', 'fit': 'maintain_weight'
+    };
+    let detectedGoal = 'maintain_weight';
+    const ml = userMsg.toLowerCase();
+    for (const [k, v] of Object.entries(goalMap)) if (ml.includes(k)) { detectedGoal = v; break; }
+
+    addMessage('ai', `Wonderful! I'd love to create a personalised Indian diet plan for you. First, I need a few details about you.`);
+    await delay(300);
+    renderProfileForm(detectedGoal);
+    setSending(false);
+    return;
+  }
+
+  // PLAN_ACTIVE MODE
+  if (state.mode === 'plan_active') {
+    // Check for food analysis
+    const foodResult = foodAnalyzer(userMsg, additionalCtx);
+    if (foodResult && foodResult.needs_context) {
+      state.pendingQuestion = userMsg;
+      setMode('interrupt_pending');
+      addMessage('ai', `Great question about ${foodResult.food_name}! To give you a fully accurate answer for your specific situation, I need two quick details.`);
+      await delay(300);
+      renderInterruptForm(foodResult.food_name, foodResult.required_fields);
+      setSending(false);
+      return;
+    }
+
+    if (foodResult && !foodResult.needs_context) {
+      renderFoodAnalysisAnswer(userMsg, {});
+      setSending(false);
+      return;
+    }
+
+    // General follow-up using active plan context
+    const response = generateFollowUpResponse(userMsg);
+    addMessage('ai', response);
+    setSending(false);
+    return;
+  }
+
+  setSending(false);
+}
+
+function generateFollowUpResponse(q) {
+  const plan = state.activePlan;
+  const ql = q.toLowerCase();
+
+  if (ql.includes('breakfast') || ql.includes('morning')) {
+    const b = plan.meals[0];
+    return `Your breakfast is **${b.dish_name}** — a great way to start the day with sustained energy. If you'd like something different, try Upma with vegetables or Idli Sambar — both fit within your ${b.calories} kcal slot. 💡 ${b.recipe_tip}`;
+  }
+  if (ql.includes('lunch')) {
+    const l = plan.meals[2];
+    return `Your lunch is **${l.dish_name}** at ${l.calories} kcal with ${l.protein_g}g protein. If you want to make it heartier, add an extra katori of dal or a kachumber salad — won't push you over your ${plan.calorie_target} kcal target.`;
+  }
+  if (ql.includes('snack')) {
+    const s = plan.meals[3];
+    return `For your evening snack, you have **${s.dish_name}** — ideal at 4:30–5pm. If you're bored of this, try a small bowl of sprouts chaat with chaat masala and lime, or even a glass of chaas with roasted jeera. All under ${s.calories} kcal.`;
+  }
+  if (ql.includes('dinner')) {
+    const d = plan.meals[4];
+    return `Dinner is **${d.dish_name}** — light yet filling. Key rule: eat at least 2 hours before bedtime to aid digestion. 💡 ${d.recipe_tip}`;
+  }
+  if (ql.includes('calorie') || ql.includes('target')) {
+    return `Your daily calorie target is **${plan.calorie_target} kcal** based on your BMR and a moderate activity level. Your BMI is ${plan.bmi}. Hitting this consistently over 4–6 weeks should show visible progress. Track your meals using an app like HealthifyMe for accountability.`;
+  }
+  if (ql.includes('protein')) {
+    const total = plan.meals.reduce((s, m) => s + m.protein_g, 0);
+    return `Your plan delivers approximately **${total.toFixed(0)}g of protein** daily — adequate for your goal. To boost it, add a scoop of sattu in your chaas, or snack on a small handful of roasted chana or peanuts.`;
+  }
+  if (ql.includes('cheat') || ql.includes('samosa') || ql.includes('pani puri') || ql.includes('sweet')) {
+    return `Craving street food? Totally valid! For a ${plan.goal.replace(/_/g,' ')} goal, aim for one planned cheat meal per week — not a cheat day. Enjoy 2 samosas or a small portion of pani puri guilt-free, then compensate with a lighter next meal. This is far better than total restriction! 🎉`;
+  }
+  if (ql.includes('substitute') || ql.includes('replace') || ql.includes('alternative')) {
+    return `Great question about substitutions! Common Indian swaps for your ${plan.dietary_preference} plan: Roti ↔ Bajra/Jowar Roti (more fibre), Rice ↔ Millets or Quinoa Khichdi, Paneer ↔ Tofu (for lower fat), Sugar ↔ Dates or Jaggery (1 tsp). Would you like a specific substitution?`;
+  }
+  if (ql.includes('water') || ql.includes('hydration')) {
+    return `💧 ${plan.hydration_tip} Also try: coconut water post-workout, aam panna in summer, and tulsi-ginger kashayam if you feel sluggish. Avoid cold water right after meals — room temperature or warm is better for digestion.`;
+  }
+
+  // Generic follow-up
+  const tips = [
+    `Based on your ${plan.dietary_preference} plan targeting ${plan.calorie_target} kcal, I'd suggest focusing on portion control using katori measurements — 1 katori dal, 2 rotis, 1 katori sabzi is your ideal lunch template.`,
+    `A tip for your goal of ${plan.goal.replace(/_/g,' ')}: consistency beats perfection. Following your plan 80% of the time for 8 weeks beats a perfect week followed by giving up.`,
+    `Your BMI of ${plan.bmi} puts you in a good category to work with. Small, sustainable changes — like adding 5 minutes of walking after each meal — can make a big difference over time.`
+  ];
+  return tips[Math.floor(Math.random() * tips.length)];
+}
+
+// ============================================================
+// RENDER COMPONENTS
+// ============================================================
+
+function renderProfileForm(goal) {
+  const goalLabels = { lose_weight: 'Lose Weight', gain_weight: 'Gain Weight', maintain_weight: 'Maintain Healthy Weight' };
+  const html = `
+    <div class="profile-form">
+      <div class="form-header">
+        <h2>Your Diet Profile</h2>
+        <p>Goal: ${goalLabels[goal] || 'Healthy Living'}</p>
+      </div>
+      <div class="form-body">
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Height (cm) <span>*</span></label>
+            <input id="pf_height" type="number" class="field-input" placeholder="e.g. 165" min="100" max="220">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Weight (kg) <span>*</span></label>
+            <input id="pf_weight" type="number" class="field-input" placeholder="e.g. 70" min="30" max="200">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label class="field-label">Age <span>*</span></label>
+            <input id="pf_age" type="number" class="field-input" placeholder="e.g. 28" min="10" max="100">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Gender <span>*</span></label>
+            <select id="pf_gender" class="field-select">
+              <option value="">Select…</option>
+              <option>Male</option>
+              <option>Female</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Dietary Preference <span>*</span></label>
+          <select id="pf_diet" class="field-select">
+            <option value="">Select…</option>
+            <option>Vegetarian</option>
+            <option>Non-Vegetarian</option>
+            <option>Vegan</option>
+            <option>Jain</option>
+            <option>Eggetarian</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Any food allergies? (optional)</label>
+          <input id="pf_allergies" type="text" class="field-input" placeholder="e.g. peanuts, dairy, gluten">
+        </div>
+        <button class="btn-primary" onclick="submitProfile('${goal}')">
+          Generate My Indian Diet Plan →
+        </button>
+      </div>
+    </div>`;
+  addSurface(html);
+  document.getElementById('quickChipsWrap').style.display = 'none';
+}
+
+function renderDietPlanCard(plan) {
+  const icons = { 'Morning Breakfast': '🌅', 'Mid-Morning Snack': '🍎', 'Lunch': '🍱', 'Evening Snack': '☕', 'Dinner': '🌙' };
+  const goalLabel = plan.goal.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
+  const mealsHTML = plan.meals.map(m => `
+    <div class="meal-slot">
+      <div class="meal-icon">${icons[m.slot_name] || '🍽️'}</div>
+      <div class="meal-content">
+        <div class="meal-meta">
+          <span class="meal-slot-name">${m.slot_name}</span>
+          <span class="meal-time">${m.time}</span>
+        </div>
+        <div class="meal-dish">${m.dish_name}</div>
+        <div class="meal-stats">
+          <span class="meal-stat">${m.portion}</span>
+          <span class="meal-stat">·</span>
+          <span class="meal-stat"><strong>${m.calories} kcal</strong></span>
+          <span class="meal-stat">·</span>
+          <span class="meal-stat">${m.protein_g}g protein</span>
+        </div>
+        ${m.recipe_tip ? `<div class="meal-tip">💡 ${m.recipe_tip}</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  const notesHTML = plan.general_notes.map(n => `<div class="note-item">${n}</div>`).join('');
+
+  const html = `
+    <div class="diet-plan">
+      <div class="plan-header">
+        <div class="plan-header-top">
+          <div>
+            <div class="plan-title">Your Personalised Diet Plan</div>
+            <div class="plan-goal">Goal: ${goalLabel}</div>
+          </div>
+          <div class="plan-kcal">
+            <div class="plan-kcal-num">${plan.calorie_target}</div>
+            <div class="plan-kcal-label">kcal / day</div>
+          </div>
+        </div>
+        <div class="plan-tags">
+          <span class="plan-tag">BMI: ${plan.bmi}</span>
+          <span class="plan-tag">${plan.dietary_preference}</span>
+          <span class="plan-tag">5 Meals</span>
+        </div>
+      </div>
+      <div class="meals-list">${mealsHTML}</div>
+      <div class="plan-footer">
+        <div class="hydration">💧 ${plan.hydration_tip}</div>
+        <div class="notes-list">${notesHTML}</div>
+      </div>
+    </div>`;
+  addSurface(html);
+}
+
+function renderInterruptForm(foodName, requiredFields) {
+  const fieldDefs = {
+    activity_level: {
+      label: 'How active are you on most days?',
+      type: 'select',
+      options: ['Sedentary (desk job, little movement)', 'Lightly active (walks, light exercise)', 'Moderately active (gym 3–4x/week)', 'Very active (daily intense exercise)'],
+      id: 'int_activity'
+    },
+    cholesterol_history: {
+      label: 'Any history of high cholesterol?',
+      type: 'select',
+      options: ['No', 'Yes', 'Not sure / Never checked'],
+      id: 'int_chol'
+    },
+    blood_sugar_history: {
+      label: 'Any history of blood sugar issues or diabetes?',
+      type: 'select',
+      options: ['No', 'Pre-diabetic', 'Diabetic (Type 2)', 'Not sure'],
+      id: 'int_sugar'
+    },
+    blood_pressure_history: {
+      label: 'Any history of high blood pressure?',
+      type: 'select',
+      options: ['No', 'Yes, currently managed', 'Yes, unmanaged', 'Not sure'],
+      id: 'int_bp'
+    },
+    caffeine_sensitivity: {
+      label: 'How sensitive are you to caffeine?',
+      type: 'select',
+      options: ['Not sensitive at all', 'Mild sensitivity', 'High sensitivity (sleep disruption)'],
+      id: 'int_caff'
+    },
+  };
+
+  const fieldsHTML = requiredFields.map(f => {
+    const def = fieldDefs[f] || { label: f, type: 'text', id: `int_${f}` };
+    if (def.type === 'select') {
+      return `
+        <div class="field-group">
+          <label class="field-label">${def.label}</label>
+          <select id="${def.id}" class="field-select">
+            <option value="">Choose…</option>
+            ${def.options.map(o => `<option value="${o}">${o}</option>`).join('')}
+          </select>
+        </div>`;
+    }
+    return `
+      <div class="field-group">
+        <label class="field-label">${def.label}</label>
+        <input type="text" id="${def.id}" class="field-input" placeholder="Your answer">
+      </div>`;
+  }).join('');
+
+  const fieldIds = requiredFields.map(f => {
+    const def = fieldDefs[f] || { id: `int_${f}` };
+    return { key: f, id: def.id };
+  });
+
+  const html = `
+    <div class="interrupt-form">
+      <div class="interrupt-header">
+        <div class="interrupt-icon">🤔</div>
+        <div>
+          <div class="interrupt-title">Quick Check — About ${foodName.charAt(0).toUpperCase() + foodName.slice(1)}</div>
+          <div class="interrupt-subtitle">These details help me personalise the answer specifically for you.</div>
+        </div>
+      </div>
+      <div class="pending-q">
+        <div class="pending-q-label">Your question (on hold):</div>
+        <div class="pending-q-text">"${state.pendingQuestion}"</div>
+      </div>
+      <div class="interrupt-body">
+        ${fieldsHTML}
+        <button class="btn-amber" onclick="submitInterrupt(${JSON.stringify(fieldIds).replace(/"/g,'&quot;')})">
+          Submit &amp; Get My Answer
+        </button>
+      </div>
+    </div>`;
+  addSurface(html);
+}
+
+function renderGuardrailCard(message, suggestion) {
+  const html = `
+    <div class="guardrail-card">
+      <div class="guardrail-icon">🙏</div>
+      <div class="guardrail-msg">${message}</div>
+      <div class="guardrail-suggest">${suggestion}</div>
+    </div>`;
+  addSurface(html);
+}
+
+function renderFoodAnalysisAnswer(question, context) {
+  const ql = question.toLowerCase();
+  let foodName = 'this food';
+  for (const f of Object.keys(CONTEXT_FOODS)) {
+    if (ql.includes(f)) { foodName = f; break; }
+  }
+
+  // Personalised verdict based on context
+  const activity = context.activity_level || '';
+  const chol = context.cholesterol_history || '';
+  const sugar = context.blood_sugar_history || '';
+  const bp = context.blood_pressure_history || '';
+
+  const analyses = {
+    ghee: {
+      cal: 112, fat: '12.7g', protein: '0.04g', carbs: '0g', fiber: '0g',
+      benefits: ['Rich in fat-soluble vitamins A, D, E, K', 'Contains conjugated linoleic acid (CLA) — anti-inflammatory', 'Aids in absorption of spices like turmeric', 'Has a high smoke point — stable for Indian cooking'],
+      drawbacks: ['High in saturated fat — use with caution if cholesterol is elevated', 'Calorie-dense — 1 tsp = ~45 kcal'],
+      verdict: chol === 'Yes' ? `⚠️ Since you have high cholesterol, limit ghee to ½ tsp/day maximum. Prefer cold-pressed mustard oil for most cooking. Ghee in small amounts is culturally important and the CLA content may be neutral for cholesterol — but monitor levels. Consult your cardiologist for personalised guidance.`
+        : activity.includes('Sedentary') ? `For a sedentary lifestyle, keep ghee to 1 tsp/day. It's excellent for Indian cooking and brings great flavour, but without sufficient physical activity, the saturated fat can accumulate. Use it on rotis or in dal, not for deep frying.`
+        : `✅ Good news! With your activity level and no major cholesterol concerns, 1–1.5 tsp of ghee per day is perfectly fine — and beneficial for your Indian diet plan. It enhances absorption of turmeric and aids digestion. Always use pure desi ghee, not hydrogenated vanaspati.`
+    },
+    jaggery: {
+      cal: 38, fat: '0g', protein: '0.1g', carbs: '10g', fiber: '0g',
+      benefits: ['Contains iron, magnesium, and potassium — far superior to refined sugar', 'Has a lower glycemic index than white sugar', 'Traditional digestive aid — 1 small piece post-meal aids liver detox', 'Rich in antioxidants'],
+      drawbacks: ['Still high in sugar — not suitable for diabetics in large amounts', '1 tsp = ~38 kcal and 10g carbs — track carefully'],
+      verdict: sugar === 'Diabetic (Type 2)' || sugar === 'Pre-diabetic' ? `⚠️ As a diabetic/pre-diabetic, avoid jaggery — it still spikes blood glucose significantly despite the lower GI claim. Use stevia or small amounts of dates instead. Consult your doctor before adding any sweeteners.`
+        : `✅ Jaggery is a far better sweetener than refined sugar for your profile. Limit to 1–2 tsp/day. It's especially good when added to dal, roti, or as a small post-meal digestive. Go for organic, chemical-free jaggery for maximum mineral content.`
+    },
+    chai: {
+      cal: 60, fat: '2g', protein: '2g', carbs: '8g', fiber: '0g',
+      benefits: ['Contains antioxidants from black tea and spices', 'Ginger and cardamom aid digestion', 'Milk adds protein and calcium', 'A cultural ritual that supports mental wellbeing'],
+      drawbacks: ['Contains caffeine — 40–60mg per cup', 'Milk-heavy chai can cause bloating', '2+ cups daily may affect iron absorption if consumed with meals'],
+      verdict: context.caffeine_sensitivity?.includes('High') ? `⚠️ With high caffeine sensitivity, limit chai to 1 cup before noon — ideally with breakfast. Switch to herbal kadha (ginger-tulsi-cardamom) in the evening. Avoid chai after 2 PM completely. Consider haldi doodh (turmeric milk) at night instead.`
+        : `✅ 1–2 cups of chai daily is perfectly fine for your profile. For best practice: have it 30 minutes after meals (not on an empty stomach), use less sugar or switch to jaggery, and try cutting milk to 50% for lighter chaas-style chai. Your plan already accounts for your macros!`
+    }
+  };
+
+  const analysis = analyses[foodName] || {
+    cal: null, fat: null, protein: null, carbs: null, fiber: null,
+    benefits: ['Rich in essential nutrients when consumed in moderation', 'Part of traditional Indian culinary heritage', 'Can fit into a balanced diet with mindful portioning'],
+    drawbacks: ['Portion control is key — excess of any food can disrupt your plan'],
+    verdict: `For your ${state.activePlan?.dietary_preference} diet targeting ${state.activePlan?.calorie_target} kcal, this food can generally be included mindfully. Track the portion and ensure it fits within your daily calorie budget.`
+  };
+
+  const macroHTML = analysis.cal !== null ? `
+    <div class="macro-grid">
+      <div class="macro-item"><div class="macro-val">${analysis.cal}</div><div class="macro-label">Calories</div></div>
+      <div class="macro-item"><div class="macro-val">${analysis.fat}</div><div class="macro-label">Fat</div></div>
+      <div class="macro-item"><div class="macro-val">${analysis.protein}</div><div class="macro-label">Protein</div></div>
+      <div class="macro-item"><div class="macro-val">${analysis.carbs}</div><div class="macro-label">Carbs</div></div>
+    </div>` : '';
+
+  const html = `
+    <div class="food-card">
+      <div class="food-card-header">
+        <div style="font-size:11px;opacity:0.7;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:4px">Food Analysis</div>
+        <div class="food-name">${foodName}</div>
+        <div style="font-size:12px;opacity:0.7;margin-top:4px">Per 1 serving (approx.)</div>
+      </div>
+      <div class="food-card-body">
+        ${macroHTML}
+        <div class="verdict-box">
+          <div class="verdict-label">🎯 Verdict For You</div>
+          <div class="verdict-text">${analysis.verdict}</div>
+        </div>
+        <div class="benefits-section">
+          <div class="section-title">Benefits</div>
+          ${analysis.benefits.map(b => `<div class="benefit-item">${b}</div>`).join('')}
+        </div>
+        ${analysis.drawbacks.length ? `
+        <div class="benefits-section">
+          <div class="section-title">Watch Out For</div>
+          ${analysis.drawbacks.map(d => `<div class="benefit-item drawback-item">${d}</div>`).join('')}
+        </div>` : ''}
+      </div>
+    </div>`;
+  addSurface(html);
+}
+
+// ============================================================
+// FORM ACTIONS
+// ============================================================
+function submitProfile(goal) {
+  const h = document.getElementById('pf_height')?.value;
+  const w = document.getElementById('pf_weight')?.value;
+  const a = document.getElementById('pf_age')?.value;
+  const g = document.getElementById('pf_gender')?.value;
+  const d = document.getElementById('pf_diet')?.value;
+  const al = document.getElementById('pf_allergies')?.value || '';
+
+  if (!h || !w || !a || !g || !d) {
+    alert('Please fill in all required fields!');
+    return;
+  }
+
+  state.userProfile = {
+    height_cm: parseFloat(h), weight_kg: parseFloat(w), age: parseInt(a),
+    gender: g, dietary_preference: d,
+    allergies: al ? al.split(',').map(x => x.trim()) : [],
+    goal
+  };
+
+  setMode('plan_active');
+
+  // Remove form, add user message
+  const formSurface = document.querySelector('.surface-area:last-child');
+  if (formSurface) formSurface.remove();
+
+  addMessage('user', `Profile submitted — ${g}, ${a}yrs, ${h}cm, ${w}kg, ${d} diet`);
+
+  // Generate plan
+  setSending(true);
+  showTyping();
+  delay(1800).then(() => {
+    removeTyping();
+    state.activePlan = generatePlan(state.userProfile);
+    const bmiLabel = state.activePlan.bmi < 18.5 ? 'Underweight' : state.activePlan.bmi < 25 ? 'Normal' : state.activePlan.bmi < 30 ? 'Overweight' : 'Obese';
+    addMessage('ai', `Here's your personalised Indian diet plan! Your BMI is ${state.activePlan.bmi} (${bmiLabel}), and your daily calorie target is ${state.activePlan.calorie_target} kcal. All meals are tailored to your ${state.activePlan.dietary_preference} preference. 🎉`);
+    delay(400).then(() => {
+      renderDietPlanCard(state.activePlan);
+      delay(600).then(() => {
+        addMessage('ai', `Feel free to ask me anything — about specific meals, food substitutions, whether ${state.userProfile.dietary_preference === 'Jain' ? 'lauki or tinda' : 'ghee or jaggery'} is good for you, or how to tweak the plan!`);
+        setSending(false);
+        document.getElementById('chatInput').placeholder = 'Ask about your plan, a food, or meal swaps…';
+      });
+    });
+  });
+}
+
+function submitInterrupt(fieldIds) {
+  const ctx = {};
+  for (const { key, id } of fieldIds) {
+    const el = document.getElementById(id);
+    if (el) ctx[key] = el.value;
+  }
+
+  // Remove interrupt form
+  const formSurface = document.querySelector('.surface-area:last-child');
+  if (formSurface) formSurface.remove();
+
+  addMessage('user', 'Context submitted: ' + Object.values(ctx).join(', '));
+  agentRespond('', ctx);
+}
+
+// ============================================================
+// CHAT INPUT HANDLERS
+// ============================================================
+function handleKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    handleSend();
+  }
+}
+
+function handleSend() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || state.isTyping) return;
+  input.value = '';
+  autoResize(input);
+  addMessage('user', msg);
+  agentRespond(msg);
+}
+
+function sendChip(msg) {
+  document.getElementById('chatInput').value = msg;
+  handleSend();
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function restart() {
+  if (!confirm('Start a new session? Your current plan will be cleared.')) return;
+  Object.assign(state, { mode: 'intake', userProfile: null, activePlan: null, pendingQuestion: null, conversationHistory: [], isTyping: false });
+  setMode('intake');
+  chatArea.innerHTML = '';
+  document.getElementById('quickChipsWrap').style.display = '';
+  document.getElementById('chatInput').placeholder = 'Tell me your diet goal…';
+  setSending(false);
+  initGreeting();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initGreeting() {
+  delay(500).then(() => {
+    addMessage('ai', `Namaskar! 🙏 I'm AaharAI, your personalised Indian diet planning assistant. I can create a complete meal plan tailored to your dietary preference (Vegetarian, Vegan, Jain, Non-Veg, or Eggetarian), goals, and body metrics. What would you like to achieve?`);
+  });
+}
+
+initGreeting();
+</script>
+</body>
+</html>
